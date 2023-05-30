@@ -16,7 +16,7 @@ class Coordenadas:
     
     @property
     def coordenada_ponto(self):
-        return self.linha,self._x,self._y,self._z
+        return [self.linha,self._x,self._y,self._z]
 
 #gera elementos que sao taxados como sendo de mesma classe
 class Classes:
@@ -25,18 +25,20 @@ class Classes:
     @classmethod
     def get_total_classes(cls):
         return cls._classes
+    
     def __init__(self,*args): 
         self._coordenadas=[]
         self._quantidade_linhas = Coordenadas.get_total_linhas()
         Classes._classes += 1
         self.classe = Classes._classes
-        # self._array_classes.append(self.classe)
+    
     @property    
     def coordenadas(self):
-        return tuple(self._coordenadas)
+        return self._coordenadas
     @coordenadas.setter
     def coordenadas(self,coordenada):
-        self._coordenadas.append(coordenada)
+        for coordenadas in coordenada:
+            self.coordenadas.append(coordenadas)
         
     @property
     def get_x_Class(self):
@@ -59,7 +61,8 @@ class Plota():
         return np.array(self._classes)
     @classes.setter
     def classes(self,classe):
-        self._classes.append(classe)
+        for classes in classe:    
+            self._classes.append(classes)
     
     @property
     def get_X(self):
@@ -91,7 +94,7 @@ class Plota():
         
         
         data_primeira_classe={'x': pegaPontosClasse['x'],
-                               'y': pegaPontosClasse['y']}
+                            'y': pegaPontosClasse['y']}
         print(data_primeira_classe['x'])
         fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
         ax.scatter('x', 'y',data=data_primeira_classe)
