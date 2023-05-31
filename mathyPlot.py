@@ -83,15 +83,6 @@ class Plota():
     def classes(self,classe):
         for classes in classe:    
             self._classes.append(classes.coordenadas)
-
-
-    @property
-    def get_X(self):        
-        return np.array(list((ponto[0])for ponto in self.classes))   
-    @property
-    def get_Y(self):
-        return np.array(list((ponto[2])for classes in self.classes for ponto in classes))
-        
   
     def plota(self):
         #  essa funcao deve percorrer o array de classes, que receberar todas as classes, que terao armazenados os pontos, a partir disso os pontos sera distribuidos e plotados
@@ -102,6 +93,7 @@ class Plota():
         ax.set_ylabel('Posicao Y')
         for i in range(self.totalClasses):
             data_pontos={
+                #para cada uma das classes, é acessada sua posicao 0 para X e 1 para Y
                 'x':np.array(list((ponto) for ponto in self.classes[i][0])),
                 'y':np.array(list((ponto)for ponto in self.classes[i][1]))
             }
