@@ -7,21 +7,36 @@ class Coordenadas:
     def get_total_linhas(cls):
         return cls._linha
  
-    def __init__(self,x=0,y=0,z=0):
-        self._x = x
-        self._y = y
-        self._z = z
+    def __init__(self,media_x,media_y,variancia_x,variancia_y,pontosGerados,media_z=0,variancia_z=0):
+        self._x = media_x
+        self._y = media_y
+        self._z = media_z
+        self._variancia_x = variancia_x
+        self._variancia_y=variancia_y
+        self._variancia_z = variancia_z
+        self._tamanho = pontosGerados
         Coordenadas._linha += 1
         self.linha = Coordenadas._linha
     
     @property
-    def coordenada_ponto(self):
-        return [self.linha,self._x,self._y,self._z]
+    def gera_normal_x(self):
+        return np.random.normal(self._x,self.raiz_variancia[0],self._tamanho)
+    @property
+    def gera_normal_y(self):
+        return np.random.normal(self._y,self.raiz_variancia[1],self._tamanho)
+   
+    @property
+    def raiz_variancia(self):
+        variancia_x = np.sqrt(self._variancia_x)
+        variancia_y = np.sqrt(self._variancia_y)
+        variancia_z = np.sqrt(self._variancia_z)
+        return variancia_x,variancia_y,variancia_z
     
-    def seta_pontos(self,x,y,z=0):
-        self._x=x
-        self._y=y
-        self._z=z
+    @property
+    def coordenadas(self):
+        return self.gera_normal_x,self.gera_normal_y
+
+    
 
 #gera elementos que sao taxados como sendo de mesma classe
 class Classes:
@@ -44,15 +59,14 @@ class Classes:
     @coordenadas.setter
     def coordenadas(self,coordenada):
         for coordenadas in coordenada:
-            self.coordenadas.append(coordenadas.coordenada_ponto)
-        
+            self.coordenadas.append(coordenadas)
     @property
     def get_x_Class(self):
-        return np.array([(coordenadaX[1]) for coordenadas in self.coordenadas for coordenadaX in coordenadas])
+        return np.array([(coordenadas[0]) for coordenadas in self.coordenadas])
 
     @property
     def get_y_Class(self):
-        return np.array([(coordenadaY[2]) for coordenadas in self.coordenadas for coordenadaY in coordenadas ])
+        return np.array([(coordenada[1]) for coordenada in self.coordenadas[1]])
     
 
 
@@ -69,11 +83,11 @@ class Plota():
     def classes(self,classe):
         for classes in classe:    
             self._classes.append(classes.coordenadas)
-            
-    
+
+
     @property
     def get_X(self):        
-        return np.array(list((ponto[1])for classes in self.classes for ponto in classes))   
+        return np.array(list((ponto[0])for ponto in self.classes))   
     @property
     def get_Y(self):
         return np.array(list((ponto[2])for classes in self.classes for ponto in classes))
@@ -82,17 +96,16 @@ class Plota():
     def plota(self):
         #  essa funcao deve percorrer o array de classes, que receberar todas as classes, que terao armazenados os pontos, a partir disso os pontos sera distribuidos e plotados
         #  sendo assim deve haver uma junção de graficos, cada um contendo os pontos de cada classe
-        classe_1=self.classes[0]
-        print(classe_1)
         cor_pontos=['r','g','b']
         fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
         ax.set_xlabel('Posicao X')
         ax.set_ylabel('Posicao Y')
         for i in range(self.totalClasses):
             data_pontos={
-                'x':np.array(list((ponto[1])for ponto in self.classes[i])),
-                'y':np.array(list((ponto[2])for ponto in self.classes[i]))
+                'x':np.array(list((ponto) for ponto in self.classes[i][0])),
+                'y':np.array(list((ponto)for ponto in self.classes[i][1]))
             }
+            print(data_pontos['x'])
             data={
                 'x':data_pontos['x'],
                 'y':data_pontos['y']

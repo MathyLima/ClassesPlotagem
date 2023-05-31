@@ -1,33 +1,18 @@
 import mathyPlot as mtp
+import numpy as np
+primeiras_coord = mtp.Coordenadas(60,30,36,144,2000)
+segunda_coord = mtp.Coordenadas(20,40,16,16,2000)
+terceira_coord = mtp.Coordenadas(25,10,100,25,2000)
 
-primeira_coord = mtp.Coordenadas(10,30)
-segunda_coord = mtp.Coordenadas(40,50)
-terceira_coord = mtp.Coordenadas(60,80)
 
-quarta_coord = mtp.Coordenadas(40,80)
-quinta_coord = mtp.Coordenadas(100,40)
-sexta_coord = mtp.Coordenadas(80,50)
-
-setima_coord = mtp.Coordenadas(200,90)
-oitava_coord = mtp.Coordenadas(74,29)
-nona_coord = mtp.Coordenadas(150,4)
 primeira_classe=mtp.Classes()
-
-primeira_classe.coordenadas= primeira_coord,segunda_coord,terceira_coord
-#print(primeira_classe.coordenadas)
+primeira_classe.coordenadas= primeiras_coord.coordenadas
 segunda_classe = mtp.Classes()
-segunda_classe.coordenadas= quarta_coord,quinta_coord,sexta_coord
-
+segunda_classe.coordenadas = segunda_coord.coordenadas
 terceira_classe = mtp.Classes()
-terceira_classe.coordenadas = setima_coord,oitava_coord,nona_coord
-
+terceira_classe.coordenadas = terceira_coord.coordenadas
 teste = mtp.Plota()
-
-teste.classes= primeira_classe,segunda_classe,terceira_classe
-#print(type(teste.get_X))
-
-print(teste.classes)
+teste.classes = primeira_classe,segunda_classe,terceira_classe
 
 teste.plota()
-#print(teste.classes)
 
