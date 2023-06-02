@@ -62,11 +62,11 @@ class Classes:
             self.coordenadas.append(coordenadas)
     @property
     def get_x_Class(self):
-        return np.array([(coordenadas[0]) for coordenadas in self.coordenadas])
+        return np.array([(coordenadas) for coordenadas in self.coordenadas[0]])
 
     @property
     def get_y_Class(self):
-        return np.array([(coordenada[1]) for coordenada in self.coordenadas[1]])
+        return np.array([(coordenada) for coordenada in self.coordenadas[1]])
     
 
 
