@@ -80,8 +80,7 @@ class Conjunto_rotulos:
         
         self._matrix=matriz_coordenadas
         return matriz_coordenadas
-        # for i in self._conjunto:
-        #     print(i.coordenadas)
+     
         
     '''Retorna a quantidade de elementos que cada rotulo possui'''
     @property
@@ -117,7 +116,7 @@ class Conjunto_rotulos:
                 'x':list(matrix_ponto[count:(count_indices_rotulos[i]+count),1]),
                 'y':list(matrix_ponto[count:(count_indices_rotulos[i]+count),2])
                 }
-            #print(data['x'])
+          
             
             
             
