@@ -61,11 +61,11 @@ class Conjunto_rotulos:
     def __init__(self,*args):
         self._conjunto = np.array(args)
         self._numRotulos = len(self._conjunto)
-        self._matrix = any 
+        self._matrix = self.set_matrix
     
     '''Funcão que recebe as matrizes de todos os conjuntos e as transforma em uma só retorna a matriz, não necessita de parâmetros'''
     @property
-    def get_matrix(self):
+    def set_matrix(self):
         x = tuple()
         y = tuple()
         for i in self._conjunto:
@@ -76,10 +76,11 @@ class Conjunto_rotulos:
         matriz_coordenadas[:, 0] = x
         matriz_coordenadas[:, 1] = y
         
-        self._matrix=matriz_coordenadas
         return matriz_coordenadas
      
-        
+    @property
+    def get_matrix(self):
+        return self._matrix
     '''Retorna a quantidade de elementos que cada rotulo possui'''
     @property
     def contagem_indices(self):
