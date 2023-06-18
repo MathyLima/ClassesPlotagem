@@ -56,6 +56,7 @@ class Rotulos:
     @property
     def get_tamanho(self):
         return self._tamanho
+    
 class Conjunto_rotulos:
     def __init__(self,*args):
         self._conjunto = np.array(args)
@@ -114,12 +115,10 @@ class Conjunto_rotulos:
                 'y':list(matrix_ponto[count:(count_indices_rotulos[i]+count),1])
                 }
           
-            
-            
-            
             ax.scatter('x','y',marker=shapes[i],color=cores[i],edgecolors='k',data=data)
             count += count_indices_rotulos[i]
         
+        #A partir daqui, serão adicionados os novos pontos
         data={
             'x':x,
             'y':y
