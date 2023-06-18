@@ -1,22 +1,45 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 
-class Coordenadas:
-    _linha = 0
+#gera elementos que sao taxados como sendo de mesma classe
+class Rotulos:
+    _rotulo = 0
+    
     @classmethod
-    def get_total_linhas(cls):
-        return cls._linha
- 
-    def __init__(self,media_x,media_y,variancia_x,variancia_y,pontosGerados,media_z=0,variancia_z=0):
+    def get_total_classes(cls):
+        return cls._rotulo
+    
+    def __init__(self,media_x,media_y,variancia_x,variancia_y,pontosGerados,media_z=0,variancia_z=0): 
+        
         self._x = media_x
         self._y = media_y
         self._z = media_z
+        
+        
         self._variancia_x = variancia_x
-        self._variancia_y=variancia_y
+        self._variancia_y= variancia_y
         self._variancia_z = variancia_z
+        
         self._tamanho = pontosGerados
-        Coordenadas._linha += 1
-        self.linha = Coordenadas._linha
+        self.rotulo = Rotulos._rotulo
+        Rotulos._rotulo += 1
+        
+        
+        self._coordenadas = np.zeros((self._tamanho,3))
+    
+    @property    
+    def coordenadas(self):
+        x= self.gera_normal_x
+        y = self.gera_normal_y
+        label = int(self.rotulo)
+        matriz_coordenadas = np.zeros((len(x), 3))
+        matriz_coordenadas[:, 0] = label
+        matriz_coordenadas[:, 1] = x
+        matriz_coordenadas[:, 2] = y
+        
+
+        return matriz_coordenadas
+   
     
     @property
     def gera_normal_x(self):
@@ -24,87 +47,96 @@ class Coordenadas:
     @property
     def gera_normal_y(self):
         return np.random.normal(self._y,self.raiz_variancia[1],self._tamanho)
-   
+    
     @property
     def raiz_variancia(self):
         variancia_x = np.sqrt(self._variancia_x)
         variancia_y = np.sqrt(self._variancia_y)
         variancia_z = np.sqrt(self._variancia_z)
         return variancia_x,variancia_y,variancia_z
+
+class Conjunto_rotulos:
+    def __init__(self,*args):
+        self._conjunto = np.array(args)
+        self._numRotulos = len(self._conjunto)
+        self._matrix = any 
     
+    '''Funcão que recebe as matrizes de todos os conjuntos e as transforma em uma só retorna a matriz, não necessita de parâmetros'''
     @property
-    def coordenadas(self):
-        return self.gera_normal_x,self.gera_normal_y
-
-    
-
-#gera elementos que sao taxados como sendo de mesma classe
-class Classes:
-    _classes = 0
-    
-    @classmethod
-    def get_total_classes(cls):
-        return cls._classes
-    
-    def __init__(self,*args): 
-        self._coordenadas=[]
-        self._quantidade_linhas = Coordenadas.get_total_linhas()
-        Classes._classes += 1
-        self.classe = Classes._classes
-    
-    @property    
-    def coordenadas(self):
-        return self._coordenadas
-    
-    @coordenadas.setter
-    def coordenadas(self,coordenada):
-        for coordenadas in coordenada:
-            self.coordenadas.append(coordenadas)
-    @property
-    def get_x_Class(self):
-        return np.array([(coordenadas) for coordenadas in self.coordenadas[0]])
-
-    @property
-    def get_y_Class(self):
-        return np.array([(coordenada) for coordenada in self.coordenadas[1]])
-    
-
-
-class Plota():
-    def __init__(self):
-        self._classes = []
-        self.totalClasses = Classes.get_total_classes()
+    def get_matrix(self):
+        x = tuple()
+        y = tuple()
+        label = tuple()
+        for i in self._conjunto:
+             label = np.append(label,i.coordenadas[:,0])
+             x = np.append(x,i.coordenadas[:,1])
+             y = np.append(y,i.coordenadas[:,2])
+        matriz_coordenadas = np.zeros((len(x), 3))
+        matriz_coordenadas[:, 0] = label
+        matriz_coordenadas[:, 1] = x
+        matriz_coordenadas[:, 2] = y
         
-    #retorna uma tupla contendo as classes criadas, essas que por sua vez armzenam seus proprios pontos
+        self._matrix=matriz_coordenadas
+        return matriz_coordenadas
+        # for i in self._conjunto:
+        #     print(i.coordenadas)
+        
+    '''Conta quantos elementos de um rotulo existem, retorna um vetor de 1 dimensão contendo as contagens'''
     @property
-    def classes(self):
-        return np.array(self._classes)
-    @classes.setter
-    def classes(self,classe):
-        for classes in classe:    
-            self._classes.append(classes.coordenadas)
-  
-    def plota(self):
-        #  essa funcao deve percorrer o array de classes, que receberar todas as classes, que terao armazenados os pontos, a partir disso os pontos sera distribuidos e plotados
-        #  sendo assim deve haver uma junção de graficos, cada um contendo os pontos de cada classe
-        cor_pontos=['r','g','b']
+    def contagem_indices(self):
+        matrix_ponto = self.get_matrix
+        coordenadas_index = matrix_ponto[:,0]
+        
+        count = 0
+        count_indices_rotulos = []
+        
+    
+        for i in range(count,len(self._conjunto)):
+            count_rotulos = list(coordenadas_index).count(i)
+            count_indices_rotulos.append(count_rotulos)
+        
+        return count_indices_rotulos
+            
+   
+    '''Função para plotagem, pode ou não receber pontos extras e os plotar'''
+    def plotagem(self,x=None,y=None):
+        #Vetor com as formas de cada rotulo
+        shapes = ['p','s','P']
+        #Vetor com as cores de cada rotulo
+        cores = ['salmon','khaki','skyblue']
         fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
-        ax.set_xlabel('Posicao X')
-        ax.set_ylabel('Posicao Y')
-        for i in range(self.totalClasses):
-            data_pontos={
-                #para cada uma das classes, é acessada sua posicao 0 para X e 1 para Y
-                'x':np.array(list((ponto) for ponto in self.classes[i][0])),
-                'y':np.array(list((ponto)for ponto in self.classes[i][1]))
-            }
-            print(data_pontos['x'])
+        ax.set_xlabel('Posição X')
+        ax.set_ylabel('Posição Y')
+         
+        matrix_ponto = self.get_matrix
+        count = 0
+        count_indices_rotulos = self.contagem_indices
+        '''Nesse for, são plotados os valores correspondentes de cada rotulo, para isso fazemos uma partição começando de count = 0, da nossa matriz,
+           armazenada em matrix_ponto, até a posição (count + contagem de todos os elementos para cada rotulo),
+           sendo assim, se meu rotulo 1 possui 1000 pontos, eu faço a partição de 0 até a posição 999, atualizamos o count com 1000.
+           Dessa forma, o próximo rótulo vai começar em 1000, até a posição(tamanho_rotulo -1) e assim por diante
+          
+          '''     
+        for i in range(len(self._conjunto)):    
             data={
-                'x':data_pontos['x'],
-                'y':data_pontos['y']
+                'x':list(matrix_ponto[count:(count_indices_rotulos[i]+count),1]),
+                'y':list(matrix_ponto[count:(count_indices_rotulos[i]+count),2])
                 }
-            print(data['x'])
-            cor_ponto=list(cor_pontos[i])
-            ax.scatter('x','y',color=cor_ponto,data=data)
-
+            #print(data['x'])
+            
+            
+            
+            ax.scatter('x','y',marker=shapes[i],color=cores[i],edgecolors='k',data=data)
+            count += count_indices_rotulos[i]
         
+        if x and y != None:
+            data={
+                'x':x,
+                'y':y
+            }
+            ax.scatter(x,y,marker='D',color='r',edgecolors='k',data=data)
+            
         plt.show()
+            
+        
+        

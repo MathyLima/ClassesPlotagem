@@ -1,20 +1,13 @@
-import mathyPlot as mtp
+import mathyPlot1_1 as mtp
 import numpy as np
-primeiras_coord = mtp.Coordenadas(60,30,36,144,2)
-segunda_coord = mtp.Coordenadas(20,40,16,16,2)
-terceira_coord = mtp.Coordenadas(25,10,100,25,2)
+
+primeiro_rotulo = mtp.Rotulos(60,30,36,144,500)
+segundo_rotulo = mtp.Rotulos(20,40,16,16,500)
+terceiro_rotulo = mtp.Rotulos(25,10,100,25,5)
+
+conjunto_rotulos = mtp.Conjunto_rotulos(primeiro_rotulo,segundo_rotulo,terceiro_rotulo)
+
+conjunto_rotulos.plotagem([10,40,60],[60,100,30])
 
 
-primeira_classe=mtp.Classes()
-primeira_classe.coordenadas= primeiras_coord.coordenadas
-segunda_classe = mtp.Classes()
-print(primeira_classe.coordenadas)
-print(primeira_classe.get_y_Class)
-segunda_classe.coordenadas = segunda_coord.coordenadas
-terceira_classe = mtp.Classes()
-terceira_classe.coordenadas = terceira_coord.coordenadas
-teste = mtp.Plota()
-teste.classes = primeira_classe,segunda_classe,terceira_classe
-
-teste.plota()
 
