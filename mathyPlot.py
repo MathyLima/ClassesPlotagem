@@ -54,7 +54,9 @@ class Rotulos:
         variancia_y = np.sqrt(self._variancia_y)
         variancia_z = np.sqrt(self._variancia_z)
         return variancia_x,variancia_y,variancia_z
-
+    @property
+    def get_tamanho(self):
+        return self._tamanho
 class Conjunto_rotulos:
     def __init__(self,*args):
         self._conjunto = np.array(args)
@@ -81,19 +83,12 @@ class Conjunto_rotulos:
         # for i in self._conjunto:
         #     print(i.coordenadas)
         
-    '''Conta quantos elementos de um rotulo existem, retorna um vetor de 1 dimensão contendo as contagens'''
+    '''Retorna a quantidade de elementos que cada rotulo possui'''
     @property
     def contagem_indices(self):
-        matrix_ponto = self.get_matrix
-        coordenadas_index = matrix_ponto[:,0]
-        
-        count = 0
         count_indices_rotulos = []
-        
-    
-        for i in range(count,len(self._conjunto)):
-            count_rotulos = list(coordenadas_index).count(i)
-            count_indices_rotulos.append(count_rotulos)
+        for i in self._conjunto:
+            count_indices_rotulos.append(i.get_tamanho)
         
         return count_indices_rotulos
             
