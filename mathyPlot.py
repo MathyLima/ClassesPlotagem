@@ -25,19 +25,18 @@ class Rotulos:
         Rotulos._rotulo += 1
         
         
-        self._coordenadas = np.zeros((self._tamanho,3))
+        self._coordenadas = any
     
     @property    
     def coordenadas(self):
         x= self.gera_normal_x
         y = self.gera_normal_y
         label = int(self.rotulo)
-        matriz_coordenadas = np.zeros((len(x), 3))
-        matriz_coordenadas[:, 0] = label
-        matriz_coordenadas[:, 1] = x
-        matriz_coordenadas[:, 2] = y
+        matriz_coordenadas = np.zeros((len(x), 2))
+        matriz_coordenadas[:, 0] = x
+        matriz_coordenadas[:, 1] = y
         
-
+        self._coordenadas = matriz_coordenadas
         return matriz_coordenadas
    
     
@@ -68,15 +67,13 @@ class Conjunto_rotulos:
     def get_matrix(self):
         x = tuple()
         y = tuple()
-        label = tuple()
         for i in self._conjunto:
-             label = np.append(label,i.coordenadas[:,0])
-             x = np.append(x,i.coordenadas[:,1])
-             y = np.append(y,i.coordenadas[:,2])
-        matriz_coordenadas = np.zeros((len(x), 3))
-        matriz_coordenadas[:, 0] = label
-        matriz_coordenadas[:, 1] = x
-        matriz_coordenadas[:, 2] = y
+             x = np.append(x,i.coordenadas[:,0])
+             y = np.append(y,i.coordenadas[:,1])
+        matriz_coordenadas = np.zeros((len(x), 2))
+        
+        matriz_coordenadas[:, 0] = x
+        matriz_coordenadas[:, 1] = y
         
         self._matrix=matriz_coordenadas
         return matriz_coordenadas
@@ -113,8 +110,8 @@ class Conjunto_rotulos:
           '''     
         for i in range(len(self._conjunto)):    
             data={
-                'x':list(matrix_ponto[count:(count_indices_rotulos[i]+count),1]),
-                'y':list(matrix_ponto[count:(count_indices_rotulos[i]+count),2])
+                'x':list(matrix_ponto[count:(count_indices_rotulos[i]+count),0]),
+                'y':list(matrix_ponto[count:(count_indices_rotulos[i]+count),1])
                 }
           
             
