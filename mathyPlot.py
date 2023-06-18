@@ -111,8 +111,8 @@ class Conjunto_rotulos:
           '''     
         for i in range(len(self._conjunto)):    
             data={
-                'x':list(matrix_ponto[count:(count_indices_rotulos[i]+count),0]),
-                'y':list(matrix_ponto[count:(count_indices_rotulos[i]+count),1])
+                'x':matrix_ponto[count:(count_indices_rotulos[i]+count),0],
+                'y':matrix_ponto[count:(count_indices_rotulos[i]+count),1]
                 }
           
             ax.scatter('x','y',marker=shapes[i],color=cores[i],edgecolors='k',data=data)
