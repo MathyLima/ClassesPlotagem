@@ -120,12 +120,11 @@ class Conjunto_rotulos:
             ax.scatter('x','y',marker=shapes[i],color=cores[i],edgecolors='k',data=data)
             count += count_indices_rotulos[i]
         
-        if x and y != None:
-            data={
-                'x':x,
-                'y':y
-            }
-            ax.scatter(x,y,marker='D',color='r',edgecolors='k',data=data)
+        data={
+            'x':x,
+            'y':y
+        }
+        ax.scatter(x,y,marker='D',color='r',edgecolors='k',data=data)
             
         plt.show()
             
