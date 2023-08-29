@@ -1,5 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
 
 #gera elementos que sao taxados como sendo de mesma classe
 class Rotulos:
@@ -32,9 +36,10 @@ class Rotulos:
         x= self.gera_normal_x
         y = self.gera_normal_y
         label = int(self.rotulo)
-        matriz_coordenadas = np.zeros((len(x), 2))
+        matriz_coordenadas = np.zeros((len(x), 3))
         matriz_coordenadas[:, 0] = x
         matriz_coordenadas[:, 1] = y
+        matriz_coordenadas[:, 2] = label
         
         self._coordenadas = matriz_coordenadas
         return matriz_coordenadas
@@ -58,24 +63,43 @@ class Rotulos:
         return self._tamanho
     
 class Conjunto_rotulos:
-    def __init__(self,*args):
+    def __init__(self,master,*args):
         self._conjunto = np.array(args)
         self._numRotulos = len(self._conjunto)
         self._matrix = self.set_matrix
-    
+        self.master = master
+        self.value_x = None #valor aleatório(x) que será gerado
+        self.value_y = None #agora em y
+        self.value = [self.value_x,self.value_y]
+        self.generate_button_radom = tk.Button(
+            self.master, text="Gerar ponto aleatório", command=self.plotagem
+        )
+        self.generate_button_classifier = tk.Button(
+            self.master, text="Classifique", command=self.classify_and_update_color
+        )
+        self.figure, self.ax = plt.subplots()
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self.master)
+        
+        self.random_point_index = []
+        
+        self.generate_button_radom.grid(row=0, column=0)  # Coluna 0
+        self.generate_button_classifier.grid(row=0, column=1)  # Coluna 1
+        self.canvas.get_tk_widget().grid(row=1, columnspan=2)  # Span para ocupar 2 colunas
     '''Funcão que recebe as matrizes de todos os conjuntos e as transforma em uma só retorna a matriz, não necessita de parâmetros'''
     @property
     def set_matrix(self):
         x = tuple()
         y = tuple()
+        label = tuple()
         for i in self._conjunto:
              x = np.append(x,i.coordenadas[:,0])
              y = np.append(y,i.coordenadas[:,1])
-        matriz_coordenadas = np.zeros((len(x), 2))
+             label = np.append(label,i.coordenadas[:,2])
+        matriz_coordenadas = np.zeros((len(x), 3))
         
         matriz_coordenadas[:, 0] = x
         matriz_coordenadas[:, 1] = y
-        
+        matriz_coordenadas[:, 2] = label
         return matriz_coordenadas
      
     @property
@@ -92,14 +116,14 @@ class Conjunto_rotulos:
             
    
     '''Função para plotagem, pode ou não receber pontos extras e os plotar'''
-    def plotagem(self,x=None,y=None):
+    def plotagem(self):
+        self.ax.clear()
+        
         #Vetor com as formas de cada rotulo
         shapes = ['p','s','P']
         #Vetor com as cores de cada rotulo
         cores = ['salmon','khaki','skyblue']
-        fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
-        ax.set_xlabel('Posição X')
-        ax.set_ylabel('Posição Y')
+        
          
         matrix_ponto = self.get_matrix
         count = 0
@@ -116,17 +140,38 @@ class Conjunto_rotulos:
                 'y':matrix_ponto[count:(count_indices_rotulos[i]+count),1]
                 }
           
-            ax.scatter('x','y',marker=shapes[i],color=cores[i],edgecolors='k',data=data)
+            self.ax.scatter(data['x'],data['y'],marker=shapes[i],color=cores[i],edgecolors='k')
             count += count_indices_rotulos[i]
+        #gerar 10 pontos aleatorios
         
-        #A partir daqui, serão adicionados os novos pontos
-        data={
-            'x':x,
-            'y':y
-        }
-        ax.scatter(x,y,marker='D',color='r',edgecolors='k',data=data)
-            
-        plt.show()
+        self.value_x = np.random.uniform(0, 70,10)
+        self.value_y = np.random.uniform(0, 70,10)
+        self.ax.scatter(self.value_x, self.value_y, color='blue', marker='o', edgecolors='k', s=130)
+
+        
+        self.canvas.draw()
+     
+    def classifier(self):
+        model = KNeighborsClassifier()
+        model.fit(self._matrix[:,:2], self._matrix[:,2])
+        predict_matrix = np.column_stack((self.value_x, self.value_y))
+        predictions = model.predict(predict_matrix)
+        self.update_point_color(predictions)  # Chama o método para atualizar a cor
+        return predictions
+    
+    def update_point_color(self, predictions):
+        colors=['salmon','khaki','skyblue']
+        for i, prediction in enumerate(predictions):
+            color = colors[int(prediction)]
+            self.ax.scatter(self.value_x[i], self.value_y[i], color=color, marker='o',edgecolors='k', s=130)
+        self.canvas.draw()
+    
+    def classify_and_update_color(self):
+        prediction = self.classifier()
+        self.update_point_color(prediction)
+        
+        
+        
             
         
         
