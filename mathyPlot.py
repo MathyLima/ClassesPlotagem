@@ -159,16 +159,13 @@ class Conjunto_rotulos:
     def fill_the_matrix(self):
         self.plotagem()
         
-        numero_de_pontos_x = 20
+        numero_de_pontos_x = 25
         numero_de_pontos_y = 15
 
         largura_janela,altura_janela = self.get_plot_area_size()
-
+      
         # Tamanho dos pontos
-        tamanho_pontos = max(largura_janela / numero_de_pontos_x, altura_janela / numero_de_pontos_y)
-
-        # Crie a matriz de pontos
-        matrix_pontos = np.zeros((numero_de_pontos_x * numero_de_pontos_y, 2))
+        tamanho_pontos = min(largura_janela / numero_de_pontos_x, altura_janela / numero_de_pontos_y)
 
         x = []
         y = []
@@ -177,17 +174,15 @@ class Conjunto_rotulos:
             for j in range(numero_de_pontos_x):
                 x.append(j * tamanho_pontos)
                 y.append(i * tamanho_pontos)
-                matrix_pontos[i * numero_de_pontos_x + j, 0] = j * tamanho_pontos
-                matrix_pontos[i * numero_de_pontos_x + j, 1] = i * tamanho_pontos
+                
 
 
         # Converta as listas em arrays numpy
         self.value_x = np.array(x)
         self.value_y = np.array(y)
         
-        print(self.value_x)
         # Plote os pontos
-        self.ax.scatter(self.value_x, self.value_y, c='blue', marker='o', edgecolors='k', s=120)
+        self.ax.scatter(self.value_x, self.value_y, c='blue', marker='o', edgecolors='k', s=100)
         self.canvas.draw()
 
     def make_random_point(self):
@@ -207,10 +202,10 @@ class Conjunto_rotulos:
         return predictions
     
     def update_point_color(self, predictions):
-        colors=['salmon','khaki','skyblue']
+        colors=['red','yellow','seagreen']
         for i, prediction in enumerate(predictions):
             color = colors[int(prediction)]
-            self.ax.scatter(self.value_x[i], self.value_y[i], color=color, marker='o',edgecolors='k', s=130)
+            self.ax.scatter(self.value_x[i], self.value_y[i], color=color, marker='o',edgecolors='k', s=100)
         self.canvas.draw()
     
     def classify_and_update_color(self):
