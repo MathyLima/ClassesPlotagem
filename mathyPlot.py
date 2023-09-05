@@ -72,7 +72,10 @@ class Conjunto_rotulos:
         self.value_y = None #agora em y
         self.value = [self.value_x,self.value_y]
         self.generate_button_radom = tk.Button(
-            self.master, text="Gerar ponto aleatório", command=self.plotagem
+            self.master, text="Gerar ponto aleatório", command=self.make_random_point
+        )
+        self.generate_button_fill_matrix = tk.Button(
+            self.master, text="Preencha a matriz", command=self.fill_the_matrix
         )
         self.generate_button_classifier = tk.Button(
             self.master, text="Classifique", command=self.classify_and_update_color
@@ -83,8 +86,9 @@ class Conjunto_rotulos:
         self.random_point_index = []
         
         self.generate_button_radom.grid(row=0, column=0)  # Coluna 0
-        self.generate_button_classifier.grid(row=0, column=1)  # Coluna 1
-        self.canvas.get_tk_widget().grid(row=1, columnspan=2)  # Span para ocupar 2 colunas
+        self.generate_button_fill_matrix.grid(row=0, column=1) # Coluna 1
+        self.generate_button_classifier.grid(row=0, column=2)  # Coluna 2
+        self.canvas.get_tk_widget().grid(row=1, columnspan=3)  # Span para ocupar 3 colunas
     '''Funcão que recebe as matrizes de todos os conjuntos e as transforma em uma só retorna a matriz, não necessita de parâmetros'''
     @property
     def set_matrix(self):
@@ -113,7 +117,14 @@ class Conjunto_rotulos:
             count_indices_rotulos.append(i.get_tamanho)
         
         return count_indices_rotulos
-            
+    
+    def get_plot_area_size(self):
+        # Obtém as dimensões atuais do eixo (axes)
+        largura = self.ax.get_xlim()[1]
+        altura = self.ax.get_ylim()[1]
+        return largura, altura
+
+
    
     '''Função para plotagem, pode ou não receber pontos extras e os plotar'''
     def plotagem(self):
@@ -140,17 +151,53 @@ class Conjunto_rotulos:
                 'y':matrix_ponto[count:(count_indices_rotulos[i]+count),1]
                 }
           
-            self.ax.scatter(data['x'],data['y'],marker=shapes[i],color=cores[i],edgecolors='k')
+            plt.scatter(data['x'],data['y'],marker=shapes[i],color=cores[i],edgecolors='k')
             count += count_indices_rotulos[i]
-        #gerar 10 pontos aleatorios
-        
-        self.value_x = np.random.uniform(0, 70,10)
-        self.value_y = np.random.uniform(0, 70,10)
-        self.ax.scatter(self.value_x, self.value_y, color='blue', marker='o', edgecolors='k', s=130)
-
         
         self.canvas.draw()
-     
+    
+    def fill_the_matrix(self):
+        self.plotagem()
+        
+        numero_de_pontos_x = 20
+        numero_de_pontos_y = 15
+
+        largura_janela,altura_janela = self.get_plot_area_size()
+
+        # Tamanho dos pontos
+        tamanho_pontos = max(largura_janela / numero_de_pontos_x, altura_janela / numero_de_pontos_y)
+
+        # Crie a matriz de pontos
+        matrix_pontos = np.zeros((numero_de_pontos_x * numero_de_pontos_y, 2))
+
+        x = []
+        y = []
+
+        for i in range(numero_de_pontos_y):
+            for j in range(numero_de_pontos_x):
+                x.append(j * tamanho_pontos)
+                y.append(i * tamanho_pontos)
+                matrix_pontos[i * numero_de_pontos_x + j, 0] = j * tamanho_pontos
+                matrix_pontos[i * numero_de_pontos_x + j, 1] = i * tamanho_pontos
+
+
+        # Converta as listas em arrays numpy
+        self.value_x = np.array(x)
+        self.value_y = np.array(y)
+        
+        print(self.value_x)
+        # Plote os pontos
+        self.ax.scatter(self.value_x, self.value_y, c='blue', marker='o', edgecolors='k', s=120)
+        self.canvas.draw()
+
+    def make_random_point(self):
+        #gerar 10 pontos aleatorios
+        self.plotagem()
+        self.value_x = np.random.uniform(0, 70,5)
+        self.value_y = np.random.uniform(0, 70,5)
+        self.ax.scatter(self.value_x, self.value_y, color='blue', marker='o', edgecolors='k', s=100)
+        self.canvas.draw()
+         
     def classifier(self):
         model = KNeighborsClassifier()
         model.fit(self._matrix[:,:2], self._matrix[:,2])
