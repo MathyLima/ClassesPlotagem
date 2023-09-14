@@ -5,6 +5,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from mpl_toolkits.mplot3d import Axes3D
+import seaborn as sns
 
 #gera elementos que sao taxados como sendo de mesma classe
 class Rotulos:
@@ -66,12 +67,40 @@ class Rotulos:
     @property
     def get_tamanho(self):
         return self._tamanho
-    
-class Conjunto_rotulos:
-    def __init__(self,master,*args, epsilon = None,alpha = None, dimension = None):
+class Join_to_matrix:
+    def __init__(self, *args):
         self._conjunto = np.array(args)
         self._numRotulos = len(self._conjunto)
         self._matrix = self.set_matrix
+        
+    @property
+    def set_matrix(self):
+        x = tuple()
+        y = tuple()
+        z = tuple()
+        label = tuple()
+        for i in self._conjunto:
+             x = np.append(x,i.coordenadas[:,0])
+             y = np.append(y,i.coordenadas[:,1])
+             z = np.append(z,i.coordenadas[:,2])
+             label = np.append(label,i.coordenadas[:,3])
+        matriz_coordenadas = np.zeros((len(x), 4))
+        
+        matriz_coordenadas[:, 0] = x
+        matriz_coordenadas[:, 1] = y
+        matriz_coordenadas[:,2] = z
+        matriz_coordenadas[:, 3] = label
+        return matriz_coordenadas
+     
+    @property
+    def get_matrix(self):
+        return self._matrix
+    
+class Plot_data:
+    def __init__(self,master,data,target, epsilon = None,alpha = None, dimension = None):
+        self.data = data
+        self.target = target
+        self.matrix = self.get_matrix
         self.epsilon = epsilon
         self.alpha = alpha
         self.dimension = dimension
@@ -107,40 +136,11 @@ class Conjunto_rotulos:
         self.generate_button_random_dm.grid(row=0, column=3) #coluna 3
         self.generate_button_classify_dm.grid(row=0,column=4) #coluna 4
         self.canvas.get_tk_widget().grid(row=1, columnspan=5)  # Span para ocupar 5 colunas
-    '''Funcão que recebe as matrizes de todos os conjuntos e as transforma em uma só retorna a matriz, não necessita de parâmetros'''
-    @property
-    def set_matrix(self):
-        x = tuple()
-        y = tuple()
-        z = tuple()
-        label = tuple()
-        for i in self._conjunto:
-             x = np.append(x,i.coordenadas[:,0])
-             y = np.append(y,i.coordenadas[:,1])
-             z = np.append(z,i.coordenadas[:,2])
-             label = np.append(label,i.coordenadas[:,3])
-        matriz_coordenadas = np.zeros((len(x), 4))
         
-        matriz_coordenadas[:, 0] = x
-        matriz_coordenadas[:, 1] = y
-        matriz_coordenadas[:,2] = z
-        matriz_coordenadas[:, 3] = label
-        return matriz_coordenadas
-     
     @property
     def get_matrix(self):
-        return self._matrix
-    
-     
-    '''Retorna a quantidade de elementos que cada rotulo possui'''
-    @property
-    def contagem_indices(self):
-        count_indices_rotulos = []
-        for i in self._conjunto:
-            count_indices_rotulos.append(i.get_tamanho)
-        
-        return count_indices_rotulos
-    
+        matrix = np.column_stack((self.data,self.target))
+        return matrix
     
     def get_plot_area_size(self):
         # Obtém as dimensões atuais do eixo (axes)
@@ -152,32 +152,14 @@ class Conjunto_rotulos:
    
     '''Função para plotagem, pode ou não receber pontos extras e os plotar'''
     def plotagem(self):
-
         
-        #Vetor com as formas de cada rotulo
-        shapes = ['p','s','P']
+        
         #Vetor com as cores de cada rotulo
         cores = ['salmon','khaki','skyblue']
         
-         
-        matrix_ponto = self.get_matrix
-        count = 0
-        count_indices_rotulos = self.contagem_indices
-        '''Nesse for, são plotados os valores correspondentes de cada rotulo, para isso fazemos uma partição começando de count = 0, da nossa matriz,
-           armazenada em matrix_ponto, até a posição (count + contagem de todos os elementos para cada rotulo),
-           sendo assim, se meu rotulo 1 possui 1000 pontos, eu faço a partição de 0 até a posição 999, atualizamos o count com 1000.
-           Dessa forma, o próximo rótulo vai começar em 1000, até a posição(tamanho_rotulo -1) e assim por diante
-          
-          '''     
-        for i in range(len(self._conjunto)):    
-            data={
-                'x':matrix_ponto[count:(count_indices_rotulos[i]+count),0],
-                'y':matrix_ponto[count:(count_indices_rotulos[i]+count),1]
-                }
-          
-            plt.scatter(data['x'],data['y'],marker=shapes[i],color=cores[i],edgecolors='k',zorder=0)
-            count += count_indices_rotulos[i]
-        
+        colors = [cores[int(label)] for label in self.matrix[:,-1]]
+
+        plt.scatter(self.data[:,0],self.data[:,1],color=colors,edgecolors='k',zorder=0)
         self.canvas.draw()
     
     
@@ -272,10 +254,13 @@ class Conjunto_rotulos:
         self.value_y = np.random.uniform(0, 70,5)
         self.ax.scatter(self.value_x, self.value_y, color='blue', marker='o', edgecolors='k', s=100,zorder=1)
         self.canvas.draw()
-         
+    
+    # def train_test_split(self):
+    #     X_train,X_test,y_train,y_test = train_test_split(self.data,self.target,test_size=0.2,random_state=42)
+    
     def classifier(self):
         model = KNeighborsClassifier()
-        model.fit(self._matrix[:,:2], self._matrix[:,2])
+        model.fit(self.matrix[:,:2],self.matrix[:,-1])
         predict_matrix = np.column_stack((self.value_x, self.value_y))
         predictions = model.predict(predict_matrix)
         self.update_point_color(predictions)  # Chama o método para atualizar a cor
@@ -283,55 +268,42 @@ class Conjunto_rotulos:
     
     def classifier_reduction(self):
         model = KNeighborsClassifier(n_neighbors=3)
-        model.fit(self.matrix_reduction[:, :3], self.matrix_reduction[:, -1])
-        predictions = model.predict(np.column_stack((self.value_x, self.value_y,self.value_z)))
+        model.fit(self.matrix_reduction[:,1:3], self.matrix_reduction[:, -1])
+        predictions = model.predict(np.column_stack((self.value_x, self.value_y)))
         self.update_point_color(predictions)
         return predictions
 
     def random_reduction_points(self):
-        self.ax.clear()
         # Gerar 10 pontos aleatórios
-        self.value_x = np.random.uniform(0, 70,5)
-        self.value_y = np.random.uniform(0, 70,5)
-        self.value_z = np.random.uniform(0,70,5)
+        self.value_x = np.random.uniform(0, 70,10)
+        self.value_y = np.random.uniform(0, 70,10)
+        self.value_z = np.random.uniform(0, 70,10)
         matrix = np.zeros((len(self.value_x),3))
         matrix[:,0] = self.value_x
         matrix[:,1] = self.value_y
         matrix[:,2] = self.value_z
         matrix_reduzida = self.fit_transform(matrix)
-        self.value_x = matrix_reduzida[:,0]
-        self.value_y = matrix_reduzida[:,1]
-        self.value_z = matrix_reduzida[:,2]
+        self.value_x = matrix_reduzida[:,1]
+        self.value_y = matrix_reduzida[:,2]
         self.plot_with_dimensinal_reduction()  # Certifique-se de que os dados estejam atualizados
         self.ax.scatter(self.value_x, self.value_y, color='blue', marker='o', edgecolors='k', zorder=1)
         self.canvas.draw()
 
     def plot_with_dimensinal_reduction(self):
         self.ax.clear()
-        self.ax = plt.axes(projection='3d')
         # Vetor com as cores de cada rótulo
         cores = ['salmon', 'khaki', 'skyblue']
-
-        # x = []
-        # y = []
-        # z=[]
-        # labels = []
-        # for rotulo, conjunto in enumerate(self._conjunto):
-        #     new_matrix = self.fit_transform(conjunto.coordenadas)
-        #     x = np.append(x, new_matrix[:, 0])
-        #     y = np.append(y, new_matrix[:, 1])
-        #     z = np.append(z,new_matrix[:,2])
-        #     print(z)
-        #     labels = np.append(labels,new_matrix[:,-1])
-
+        
         matrix_result = self.fit_transform(self.get_matrix)
-        print(matrix_result[:,-1])
+        
         self.matrix_reduction = matrix_result
         
 
         # Lista de cores correspondentes aos rótulos
         colors = [cores[int(label)] for label in matrix_result[:, -1]]
-        self.ax.scatter(matrix_result[:, 0], matrix_result[:, 1],matrix_result[:,2], c=colors, edgecolors='k', zorder=0)
+        
+        
+        self.ax.scatter(matrix_result[:, 1], matrix_result[:, 2], c=colors, edgecolors='k', zorder=0)
 
         self.canvas.draw()
 
